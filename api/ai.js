@@ -1,45 +1,22 @@
 import { GoogleGenAI } from '@google/genai';
 
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ success: false, error: `Method ${req.method} Not Allowed` });
+    return res.status(405).json({ success: false, error: 'Method Not Allowed' });
   }
 
   try {
     const { message } = req.body;
-
-    if (!message || typeof message !== 'string' || message.trim() === '') {
-      return res.status(400).json({ success: false, error: 'Message cannot be empty.' });
-    }
-
-    if (!process.env.GEMINI_API_KEY) {
-      return res.status(500).json({ success: false, error: 'Configuration Error: GEMINI_API_KEY is missing in Vercel environment variables.' });
-    }
-
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-    const systemPersona = "You are Bharat Jeevan AI, an India-focused student-developed AI assistant designed to provide helpful, clear, and responsible information. Be polite, clear, avoid unnecessarily complicated language, help students understand concepts, and use Indian context when relevant. Do not pretend to be an official government service.";
-
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: [
-        { role: 'user', parts: [{ text: `${systemPersona}\n\nUser Question: ${message}` }] }
-      ]
+      contents: message,
     });
 
-    const answer = response.text || "I'm sorry, I couldn't generate a response right now.";
-
-    return res.status(200).json({
-      success: true,
-      answer: answer
-    });
-
+    return res.status(200).json({ success: true, answer: response.text });
   } catch (error) {
-    console.error('Gemini Backend Error Details:', error);
-    return res.status(500).json({
-      success: false,
-      error: `AI Error: ${error.message || 'Unknown server error occurred.'}`
-    });
+    console.error(error);
+    return res.status(500).json({ success: false, error: error.message });
   }
 }
