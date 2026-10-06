@@ -10,13 +10,13 @@ export default async function handler(req, res) {
   try {
     const { message } = req.body;
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash',
       contents: message,
     });
 
     return res.status(200).json({ success: true, answer: response.text });
   } catch (error) {
-    console.error(error);
+    console.error("AI API Error:", error);
     return res.status(500).json({ success: false, error: error.message });
   }
 }
