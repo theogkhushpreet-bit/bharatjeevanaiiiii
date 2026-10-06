@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@google/genai": "^2.27.0"
+    "@google/genai": "^0.1.1"
   },
   "engines": {
     "node": "24.x"
